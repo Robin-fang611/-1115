@@ -81,7 +81,13 @@ export function ImagePreview({ src, alt, className, images = [], initialIndex = 
             src={src} 
             alt={alt} 
             fill 
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+            }}
+            unoptimized={src.startsWith('http')}
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
             <ZoomIn className="text-white drop-shadow-md" />

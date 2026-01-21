@@ -203,10 +203,8 @@ export const useContentStore = create<ContentState>((set, get) => ({
       });
       
       if (!response.ok) throw new Error('Failed to save site data');
-      // console.log('Data saved successfully');
     } catch (error) {
       console.error('Error saving site data:', error);
-      // set({ error: (error as Error).message });
     }
   },
 
