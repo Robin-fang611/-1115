@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
 import fs from 'fs';
-import path from 'path';
+import { getDataFilePath, SITE_DATA_FILENAME } from '@/lib/dataPaths';
 
 const notoSansSC = Noto_Sans_SC({
   variable: "--font-noto-sans-sc",
@@ -15,7 +15,7 @@ const notoSansSC = Noto_Sans_SC({
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const filePath = path.join(process.cwd(), 'src', 'data', 'siteData.json');
+    const filePath = getDataFilePath(SITE_DATA_FILENAME);
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath, 'utf-8');
       const data = JSON.parse(fileData);

@@ -1,0 +1,187 @@
+{
+  "global": {
+    "siteTitle": "Robin.cn",
+    "logoText": "Robin's Island",
+    "isFlowTextEnabled": true,
+    "contactEmail": "weiyangfang950@gmail.com"
+  },
+  "home": {
+    "slogan": "一一一一一一一一一",
+    "dynamicUpdate": "新项目「Cheat」上新",
+    "coverImage": "",
+    "socialLinks": [
+      {
+        "platform": "Xiaohongshu",
+        "url": "https://www.xiaohongshu.com/user/profile/685b590b000000001b021d86",
+        "icon": "xhs"
+      },
+      {
+        "platform": "WeChat",
+        "url": "13622337915（手机号）",
+        "icon": "wechat"
+      }
+    ]
+  },
+  "aboutMe": {
+    "location": "Netherland",
+    "role": "developer and UI/UX designer",
+    "expertOn": "Expert on",
+    "abilityTags": [
+      "Marketing",
+      "FA",
+      "游戏策划",
+      "游戏发行",
+      "management"
+    ],
+    "timeline": [
+      {
+        "id": "1",
+        "category": "创业经历",
+        "time": "2025-01",
+        "event": "开启独立开发之旅",
+        "result": "辞去大厂工作，正式开始全职独立开发。致力于构建能为用户带来真实价值的小而美产品。",
+        "isSticky": false
+      },
+      {
+        "id": "2",
+        "category": "职场经历",
+        "time": "2023-至今",
+        "event": "某头部公司项目负责人",
+        "result": "实现业务从0到1增长，负责核心业务线的前端架构重构，主导微前端方案落地。",
+        "isSticky": false
+      },
+      {
+        "id": "3",
+        "category": "自媒体",
+        "time": "2022-11",
+        "event": "自媒体粉丝突破 10万",
+        "result": "在小红书和 B 站分享技术成长与职场经验，全网粉丝累计突破 10 万。",
+        "isSticky": false
+      }
+    ],
+    "valueSentence": "探索技术与商业的边界，记录成长的每一步。"
+  },
+  "projectProgress": {
+    "brandName": "",
+    "brandSlogan": "助力个人品牌价值最大化",
+    "coreBusiness": {
+      "title": "核心业务介绍",
+      "content": "这里是详细的项目描述... 专注于为个人创作者提供全方位的品牌孵化与商业化解决方案。",
+      "images": [
+        "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1676299081847-824d16692096?q=80&w=2070&auto=format&fit=crop"
+      ]
+    },
+    "futurePlan": [
+      {
+        "id": "f1",
+        "date": "2025 Q2",
+        "title": "发布 AI 助手 2.0 版本"
+      },
+      {
+        "id": "f2",
+        "date": "2025 Q3",
+        "title": "启动 SaaS 订阅服务"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "343f3bd0-d3ee-415a-be44-0d30acee171c",
+        "type": "module",
+        "title": "New Module",
+        "date": "",
+        "content": "",
+        "images": []
+      }
+    ]
+  },
+  "entrepreneurship": {
+    "title": "创业分享",
+    "description": "利他分享，共同成长",
+    "categories": [
+      "商业逻辑",
+      "避坑指南",
+      "实战复盘"
+    ],
+    "articles": [
+      {
+        "id": "e1",
+        "title": "独立开发者的第一年：从迷茫到坚定",
+        "cover": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop",
+        "summary": "复盘过去一年的心路历程，分享作为独立开发者踩过的坑与获得的宝贵经验。",
+        "publishDate": "2025-01-20",
+        "views": 12580,
+        "isSticky": false,
+        "category": "实战复盘"
+      },
+      {
+        "id": "e2",
+        "title": "如何用 MVP 思维低成本验证商业想法",
+        "cover": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2000&auto=format&fit=crop",
+        "summary": "不要等到产品完美再上线。本文分享如何用最小可行性产品（MVP）快速测试市场反馈。",
+        "publishDate": "2024-12-10",
+        "views": 8500,
+        "isSticky": false,
+        "category": "商业逻辑"
+      },
+      {
+        "id": "e3",
+        "title": "避坑指南：初创团队最容易犯的3个错误",
+        "cover": "https://images.unsplash.com/photo-1599658880436-c61792e70672?q=80&w=2000&auto=format&fit=crop",
+        "summary": "股权分配不均、忽视现金流、伪需求自嗨……这些坑你踩过吗？",
+        "publishDate": "2024-11-05",
+        "views": 6200,
+        "isSticky": false,
+        "category": "避坑指南"
+      }
+    ]
+  },
+  "growthNotes": {
+    "categories": [
+      "每日感悟",
+      "深度思考"
+    ],
+    "articles": [
+      {
+        "id": "g1",
+        "title": "产品设计中的“留白”艺术",
+        "cover": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2000&auto=format&fit=crop",
+        "summary": "探讨如何通过合理的留白提升界面质感与用户体验。",
+        "publishDate": "2024-11-08",
+        "views": 5600,
+        "isSticky": false,
+        "category": "深度思考"
+      },
+      {
+        "id": "g2",
+        "title": "保持专注：在碎片化时代重获深度工作能力",
+        "cover": "https://images.unsplash.com/photo-1497493292307-31c376b6e479?q=80&w=2000&auto=format&fit=crop",
+        "summary": "读《深度工作》有感，分享3个实用的专注力提升技巧。",
+        "publishDate": "2024-10-15",
+        "views": 3400,
+        "isSticky": false,
+        "category": "每日感悟"
+      },
+      {
+        "id": "g3",
+        "title": "为什么说“输出”是最好的学习方式",
+        "cover": "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=2000&auto=format&fit=crop",
+        "summary": "费曼学习法的实践应用，如何通过写作和分享内化知识。",
+        "publishDate": "2024-09-20",
+        "views": 4100,
+        "isSticky": false,
+        "category": "深度思考"
+      }
+    ],
+    "reviewSection": []
+  },
+  "contact": {
+    "autoReplyMessage": "很抱歉以这样的方式认识您，真诚感谢您的信任，我会尽快回复",
+    "formTypes": [
+      "合作咨询",
+      "粉丝提问",
+      "业务对接",
+      "其他"
+    ]
+  }
+}

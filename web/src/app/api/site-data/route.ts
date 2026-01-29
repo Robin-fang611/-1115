@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
+import { getDataFilePath, SITE_DATA_FILENAME, safeWriteJson } from '@/lib/dataPaths';
 
-const DATA_FILE = path.join(process.cwd(), 'src', 'data', 'siteData.json');
+const DATA_FILE = getDataFilePath(SITE_DATA_FILENAME);
 
 export async function GET() {
   try {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       }
     }
     
-    fs.writeFileSync(DATA_FILE, JSON.stringify(body, null, 2));
+    await safeWriteJson(DATA_FILE, body);
     
     return NextResponse.json({ success: true, data: body });
   } catch (error) {

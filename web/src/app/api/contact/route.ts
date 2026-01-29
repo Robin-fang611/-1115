@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
+import { getDataFilePath, MESSAGES_FILENAME, safeWriteJson } from '@/lib/dataPaths';
 
-const MESSAGES_FILE = path.join(process.cwd(), 'src', 'data', 'messages.json');
+const MESSAGES_FILE = getDataFilePath(MESSAGES_FILENAME);
 
 export async function POST(request: Request) {
   try {
@@ -40,13 +40,7 @@ export async function POST(request: Request) {
 
     messages.push(newMessage);
     
-    // Ensure directory exists
-    const dir = path.dirname(MESSAGES_FILE);
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    await safeWriteJson(MESSAGES_FILE, messages);
 
     return NextResponse.json({ 
         success: true, 

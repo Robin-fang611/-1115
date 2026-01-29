@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
+import { getDataFilePath, MESSAGES_FILENAME } from '@/lib/dataPaths';
 
-const MESSAGES_FILE = path.join(process.cwd(), 'src', 'data', 'messages.json');
+const MESSAGES_FILE = getDataFilePath(MESSAGES_FILENAME);
 
 export async function GET() {
   try {
