@@ -43,9 +43,17 @@ export const authOptions: NextAuthOptions = {
     signIn: "/admin/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile, email, credentials }) {
+      // 允许登录
+      return true;
+    },
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+      }
+      // 处理 session 更新
+      if (trigger === "update" && session) {
+        return { ...token, ...session };
       }
       return token;
     },
