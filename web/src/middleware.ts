@@ -5,6 +5,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   // 检查是否是后台路径
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    // 如果是登录页面，允许访问
+    if (request.nextUrl.pathname === '/admin/login') {
+      return NextResponse.next();
+    }
+    
     // 获取访问密码 cookie
     const adminAuth = request.cookies.get('admin_auth')?.value;
     
@@ -16,13 +21,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
-    // 如果是登录页面，允许访问
-    if (request.nextUrl.pathname === '/admin/login') {
-      return NextResponse.next();
-    }
-    
     // 其他后台页面，重定向到登录页
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    const loginUrl = new URL('/admin/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
   
   return NextResponse.next();

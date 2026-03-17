@@ -14,11 +14,10 @@ export async function POST(request: Request) {
         message: '登录成功'
       });
       
-      // 设置 cookie，有效期 24 小时
+      // 设置 cookie，有效期 24 小时（不使用 httpOnly，让客户端可以访问）
       response.cookies.set('admin_auth', password, {
-        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 60 * 60 * 24, // 24 小时
         path: '/',
       });
