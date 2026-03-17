@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure critical sections exist (shallow check)
-    const requiredKeys = ['global', 'home', 'aboutMe', 'projectProgress', 'entrepreneurship', 'growthNotes', 'contact'];
+    const requiredKeys = ['global', 'profile', 'projects', 'blog', 'contact'];
     const missingKeys = requiredKeys.filter(key => !(key in body));
     
     if (missingKeys.length > 0) {

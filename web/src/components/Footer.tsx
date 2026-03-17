@@ -1,15 +1,22 @@
 'use client';
 
-import { useContentStore } from '@/store/useContentStore';
-
 export function Footer() {
-  const { global } = useContentStore();
-
   return (
-    <footer className="bg-[#0a0a0a] border-t border-white/10 pt-12 pb-8 text-white">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center text-sm text-gray-500 border-t border-white/10 pt-8">
-          © {new Date().getFullYear()} {global.logoText || 'Personal Brand'}. All rights reserved.
+    <footer className="bg-white border-t-4 border-dashed border-pink-300 pt-12 pb-8">
+      <div className="container mx-auto px-4 text-center">
+        <div className="mb-6">
+          <p className="text-2xl font-bold text-gray-700 mb-2" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+            💫 感谢访问 Robin's Island
+          </p>
+          <p className="text-gray-600" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+            用作品说话，而非用简历说话
+          </p>
+        </div>
+        
+        <div className="border-t-2 border-dashed border-gray-300 pt-8">
+          <p className="text-sm text-gray-600 font-bold" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+            © {new Date().getFullYear()} Robin's Island. Made with 💖 and 
+          </p>
         </div>
       </div>
     </footer>

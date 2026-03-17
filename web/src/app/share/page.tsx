@@ -1,63 +1,34 @@
 'use client';
 
-import { useContentStore } from '@/store/useContentStore';
-import { ImagePreview } from '@/components/ui/ImagePreview';
-import { Suspense, useEffect, useState } from 'react';
-import clsx from 'clsx';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, Eye, Bookmark } from 'lucide-react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import siteData from '@/data/siteData.json';
 
-function ShareContent() {
-  const { entrepreneurship, growthNotes, fetchData, isLoading } = useContentStore();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+interface Article {
+  id: string;
+  title: string;
+  summary: string;
+  category: string;
+  publishDate: string;
+  cover?: string;
+  isSticky: boolean;
+  content: string;
+}
 
+export default function BlogPage() {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'entrepreneurship' | 'growth'>('entrepreneurship');
-  const [activeTag, setActiveTag] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('全部');
 
   useEffect(() => setMounted(true), []);
 
-  // Sync tab with URL search params
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'startup') {
-      setActiveTab('entrepreneurship');
-    } else if (tab === 'notes') {
-      setActiveTab('growth');
-    }
-  }, [searchParams]);
+  if (!mounted) return <div className="min-h-screen bg-yellow-50 flex items-center justify-center">Loading...</div>;
 
-  // Reset tag when tab changes
-  useEffect(() => {
-    setActiveTag('All');
-  }, [activeTab]);
+  const blog = siteData.blog;
+  const articles: Article[] = blog.articles;
 
-  const handleTabChange = (tab: 'entrepreneurship' | 'growth') => {
-    setActiveTab(tab);
-    // Update URL without full reload
-    const newTabParam = tab === 'entrepreneurship' ? 'startup' : 'notes';
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', newTabParam);
-    router.replace(`/share?${params.toString()}`, { scroll: false });
-  };
-
-  if (!mounted || isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-
-  // Select data source based on tab
-  const currentSection = activeTab === 'entrepreneurship' ? entrepreneurship : growthNotes;
-  const categories = ['All', ...currentSection.categories];
-  
-  // Combine articles from selected section
-  const articles = currentSection.articles;
-
-  // Filter and Sort: Pinned first, then Date
   const filteredArticles = articles
-    .filter(article => activeTag === 'All' || article.category === activeTag)
+    .filter(article => activeCategory === '全部' || article.category === activeCategory)
     .sort((a, b) => {
       if (a.isSticky && !b.isSticky) return -1;
       if (!a.isSticky && b.isSticky) return 1;
@@ -65,124 +36,152 @@ function ShareContent() {
     });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-24 pb-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
-          <div className="flex items-baseline gap-4">
-             <button 
-               onClick={() => handleTabChange('entrepreneurship')}
-               className={clsx(
-                 "text-4xl md:text-5xl font-bold transition-colors font-sans",
-                 activeTab === 'entrepreneurship' ? "text-gray-200" : "text-gray-700 hover:text-gray-500"
-               )}
-             >
-               创业分享
-             </button>
-             <span className="text-3xl text-gray-600 font-light">/</span>
-             <button 
-               onClick={() => handleTabChange('growth')}
-               className={clsx(
-                 "text-4xl md:text-5xl font-bold transition-colors font-sans",
-                 activeTab === 'growth' ? "text-gray-200" : "text-gray-700 hover:text-gray-500"
-               )}
-             >
-               成长手记
-             </button>
-          </div>
-          
-          {/* Categories / Tags */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map(tag => (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(tag)}
-                className={clsx(
-                  "px-3 py-1 rounded-full text-xs font-medium transition-colors border",
-                  activeTag === tag 
-                    ? "bg-white text-black border-white" 
-                    : "bg-transparent text-gray-400 border-gray-700 hover:border-gray-500 hover:text-gray-200"
-                )}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
+    <main className="min-h-screen bg-yellow-50 relative overflow-hidden pt-20">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 opacity-10">
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-3xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              rotate: Math.random() * 360,
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            {['📝', '💖', '✨'][i % 3]}
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="inline-block mb-6"
+          >
+            <div className="w-32 h-32 rounded-full border-8 border-dashed border-pink-400 bg-white p-2 shadow-xl">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-200 via-yellow-200 to-cyan-200 flex items-center justify-center">
+                <span className="text-7xl">📚</span>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.h1
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-6xl md:text-7xl font-bold mb-6"
+            style={{
+              fontFamily: 'Comic Sans MS, cursive',
+              color: '#d63384',
+            }}
+          >
+            📚 Blog 分享
+          </motion.h1>
+
+          <motion.p
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-2xl text-gray-700"
+            style={{ fontFamily: 'Comic Sans MS, cursive' }}
+          >
+            💫 {blog.description}
+          </motion.p>
         </div>
 
-        <div className="mb-8 text-gray-400 border-l-4 border-[#7A3EF3] pl-4 italic">
-           {activeTab === 'entrepreneurship' ? entrepreneurship.description : "每日感悟与深度思考"}
+        {/* 分类筛选 */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
+          {blog.categories.map((category, i) => (
+            <motion.button
+              key={category}
+              initial={{ scale: 0, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ delay: 0.7 + i * 0.1 }}
+              onClick={() => setActiveCategory(category)}
+              className={`px-6 py-3 rounded-full text-sm font-bold border-2 transition-all ${
+                activeCategory === category
+                  ? 'bg-pink-500 text-white border-pink-500'
+                  : 'bg-white text-gray-700 border-gray-400 hover:border-pink-400'
+              }`}
+              style={{ fontFamily: 'Comic Sans MS, cursive' }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {category}
+            </motion.button>
+          ))}
         </div>
 
-        {/* Grid List - Xiaohongshu Style */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 文章卡片网格 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.length === 0 ? (
-            <div className="col-span-full text-center py-20 text-gray-600 bg-[#111] rounded-xl border border-gray-800">
-              暂无文章内容
+            <div className="col-span-full text-center py-20 text-gray-600 bg-white rounded-3xl border-4 border-dashed border-gray-400">
+              <p className="text-2xl" style={{ fontFamily: 'Comic Sans MS, cursive' }}>暂无文章内容 📝</p>
             </div>
           ) : (
-            filteredArticles.map(article => (
-              <div key={article.id} className="bg-[#111] rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:shadow-purple-900/10 transition-all group border border-gray-800 flex flex-col h-full hover:border-gray-600">
-                {/* Cover Image */}
-                <div className="aspect-[3/4] relative bg-gray-900 overflow-hidden">
+            filteredArticles.map((article, index) => (
+              <motion.article
+                key={article.id}
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 * index }}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+                className="bg-white rounded-3xl overflow-hidden shadow-xl border-2 border-dashed border-gray-400 flex flex-col h-full"
+              >
+                {/* 封面图 */}
+                <div className="aspect-[3/4] relative bg-gradient-to-br from-pink-200 via-yellow-200 to-cyan-200">
                   {article.isSticky && (
-                    <div className="absolute top-3 left-3 z-10 bg-[#7A3EF3] text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
-                      <Bookmark size={12} fill="currentColor" /> 置顶
+                    <div className="absolute top-3 left-3 z-10 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                      <Bookmark size={12} /> 置顶
                     </div>
                   )}
                   {article.cover ? (
-                    <ImagePreview 
-                      src={article.cover} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+                    <img
+                      src={article.cover}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-700 bg-gray-900">
-                      No Cover
+                    <div className="w-full h-full flex items-center justify-center text-gray-500">
+                      <span className="text-6xl">📝</span>
                     </div>
                   )}
                 </div>
 
-                {/* Content */}
+                {/* 内容 */}
                 <div className="p-4 flex flex-col flex-grow">
-                  {/* Category Label */}
-                  {article.category && (
-                      <div className="mb-2">
-                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded border border-gray-700">
-                              {article.category}
-                          </span>
-                      </div>
-                  )}
-                  <h3 className="font-bold text-gray-200 mb-2 line-clamp-2 leading-snug group-hover:text-[#A78BFA] transition-colors">
+                  {/* 分类标签 */}
+                  <div className="mb-3">
+                    <span className="text-xs px-3 py-1 bg-pink-100 text-pink-600 rounded-full font-bold border-2 border-pink-300" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                      {article.category}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-gray-800 mb-3 line-clamp-2 leading-snug" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
                     {article.title}
                   </h3>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-2 flex-grow">
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-grow" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
                     {article.summary}
                   </p>
-                  
-                  <div className="flex items-center justify-between text-xs text-gray-600 mt-auto pt-3 border-t border-gray-800">
-                     <div className="flex items-center gap-4">
-                       <span className="flex items-center gap-1">
-                         <Calendar size={12} /> {article.publishDate}
-                       </span>
-                     </div>
-                     <span className="flex items-center gap-1">
-                       <Eye size={12} /> {article.views}
-                     </span>
+
+                  {/* 元数据 */}
+                  <div className="flex items-center text-xs text-gray-600 mt-auto pt-3 border-t-2 border-dashed border-gray-300">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Calendar size={12} /> {article.publishDate}
+                    </span>
                   </div>
                 </div>
-              </div>
+              </motion.article>
             ))
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-export default function SharePage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <ShareContent />
-    </Suspense>
+    </main>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useContentStore, TimelineItem } from "@/store/useContentStore";
+import { useContentStore } from "@/store/useContentStore";
 import { Save, Loader2, Plus, Trash2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
+const EMOJI_OPTIONS = ['💼', '📚', '🎮', '🤖', '🚀', '🎯', '💡', '🏆', '📈', '🎨', '✍️', '🎵'];
+
 export default function AdminAbout() {
-  const { aboutMe, fetchData, updateAboutMe, saveData, isLoading } = useContentStore();
+  const { profile, fetchData, updateProfile, saveData, isLoading } = useContentStore();
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -15,41 +17,45 @@ export default function AdminAbout() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    await saveData();
-    setIsSaving(false);
+    try {
+      await saveData();
+      alert('保存成功!');
+    } catch (error) {
+      alert('保存失败，请重试');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // Timeline Handlers
   const addTimelineItem = () => {
-    const newItem: TimelineItem = {
+    const newItem = {
       id: uuidv4(),
       time: new Date().getFullYear().toString(),
-      event: "新事件",
-      category: "职场经历",
-      result: "",
-      isSticky: false,
+      event: '新事件',
+      category: '实践经历',
+      result: '',
+      emoji: '🚀',
     };
-    updateAboutMe({ timeline: [newItem, ...aboutMe.timeline] });
+    updateProfile({ timeline: [newItem, ...profile.timeline] });
   };
 
-  const updateTimelineItem = (index: number, field: keyof TimelineItem, value: any) => {
-    const newTimeline = [...aboutMe.timeline];
+  const updateTimelineItem = (index: number, field: string, value: any) => {
+    const newTimeline = [...profile.timeline];
     newTimeline[index] = { ...newTimeline[index], [field]: value };
-    updateAboutMe({ timeline: newTimeline });
+    updateProfile({ timeline: newTimeline });
   };
 
   const removeTimelineItem = (index: number) => {
-    const newTimeline = aboutMe.timeline.filter((_, i) => i !== index);
-    updateAboutMe({ timeline: newTimeline });
+    const newTimeline = profile.timeline.filter((_, i) => i !== index);
+    updateProfile({ timeline: newTimeline });
   };
 
-  // Ability Tags Handler
   const handleAbilityTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const tags = e.target.value.split(/,\s*/).filter(Boolean);
-    updateAboutMe({ abilityTags: tags });
+    updateProfile({ abilityTags: tags });
   };
 
-  if (isLoading) {
+  if (isLoading || !profile) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
@@ -60,11 +66,14 @@ export default function AdminAbout() {
   return (
     <div className="space-y-8 max-w-4xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">关于我 (About Me)</h1>
+        <h1 className="text-3xl font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          👤 关于我 (About Me)
+        </h1>
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 disabled:opacity-50 transition-all shadow-lg"
+          style={{ fontFamily: 'Comic Sans MS, cursive' }}
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           保存更改
@@ -72,116 +81,120 @@ export default function AdminAbout() {
       </div>
 
       <div className="grid gap-6">
-        <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-          <h2 className="text-xl font-semibold border-b pb-2">基本信息</h2>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-dashed border-gray-400 space-y-6">
+          <h2 className="text-xl font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+            基本信息
+          </h2>
           
-          {/* Value Sentence */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">价值主张 (Value Sentence)</label>
+            <label className="text-sm font-bold text-gray-700">价值主张 (Value Sentence)</label>
             <input
               type="text"
-              value={aboutMe.valueSentence}
-              onChange={(e) => updateAboutMe({ valueSentence: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              value={profile.valueSentence}
+              onChange={(e) => updateProfile({ valueSentence: e.target.value })}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
             />
           </div>
 
-          {/* Ability Tags */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">能力标签 (Ability Tags, 逗号分隔)</label>
+            <label className="text-sm font-bold text-gray-700">能力标签 (Ability Tags, 逗号分隔)</label>
             <input
               type="text"
-              value={aboutMe.abilityTags.join(', ')}
+              value={profile.abilityTags.join(', ')}
               onChange={handleAbilityTagsChange}
               placeholder="Marketing, FA, 游戏策划"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
             />
           </div>
         </div>
 
-        {/* Timeline */}
-        <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-          <div className="flex justify-between items-center border-b pb-2">
-            <h2 className="text-xl font-semibold">经历时间轴 (Timeline)</h2>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-dashed border-gray-400 space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+              经历时间轴 (Timeline)
+            </h2>
             <button
               onClick={addTimelineItem}
-              className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-700 font-bold rounded-xl hover:bg-pink-200 transition-all"
+              style={{ fontFamily: 'Comic Sans MS, cursive' }}
             >
-              <Plus className="w-4 h-4" /> 添加经历
+              <Plus className="w-4 h-4" />
+              添加经历
             </button>
           </div>
           
           <div className="space-y-4">
-            {aboutMe.timeline.map((item, index) => (
-              <div key={item.id} className={`p-4 border rounded-lg ${item.isSticky ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100'}`}>
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-3">
-                  {/* Time */}
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-medium text-gray-500 block mb-1">时间</label>
+            {profile.timeline.map((item, index) => (
+              <div key={item.id} className="p-4 border-2 border-gray-300 rounded-2xl bg-gradient-to-br from-pink-50 to-purple-50">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-xs font-bold text-gray-600 block">时间</label>
                     <input
                       type="text"
                       value={item.time}
                       onChange={(e) => updateTimelineItem(index, 'time', e.target.value)}
-                      className="w-full p-2 border rounded text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm text-gray-800 focus:border-pink-500"
                     />
                   </div>
                   
-                  {/* Category */}
-                  <div className="md:col-span-3">
-                    <label className="text-xs font-medium text-gray-500 block mb-1">类别</label>
-                     <input
+                  <div className="md:col-span-3 space-y-2">
+                    <label className="text-xs font-bold text-gray-600 block">类别</label>
+                    <input
                       type="text"
                       value={item.category}
                       onChange={(e) => updateTimelineItem(index, 'category', e.target.value)}
-                      className="w-full p-2 border rounded text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm text-gray-800 focus:border-pink-500"
                     />
                   </div>
 
-                  {/* Event */}
-                  <div className="md:col-span-7">
-                    <label className="text-xs font-medium text-gray-500 block mb-1">事件 (Event)</label>
+                  <div className="md:col-span-5 space-y-2">
+                    <label className="text-xs font-bold text-gray-600 block">事件</label>
                     <input
                       type="text"
                       value={item.event}
                       onChange={(e) => updateTimelineItem(index, 'event', e.target.value)}
-                      className="w-full p-2 border rounded text-sm font-medium"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-bold text-gray-800 focus:border-pink-500"
                     />
+                  </div>
+
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-xs font-bold text-gray-600 block">Emoji</label>
+                    <select
+                      value={item.emoji}
+                      onChange={(e) => updateTimelineItem(index, 'emoji', e.target.value)}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm text-gray-800 focus:border-pink-500"
+                    >
+                      {EMOJI_OPTIONS.map((emoji) => (
+                        <option key={emoji} value={emoji}>{emoji}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="text-xs font-medium text-gray-500 block mb-1">结果/成就 (Result)</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-600 block">结果/成就</label>
                   <textarea
                     value={item.result}
                     onChange={(e) => updateTimelineItem(index, 'result', e.target.value)}
-                    className="w-full p-2 border rounded text-sm"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm text-gray-800 focus:border-pink-500"
                     rows={2}
                   />
                 </div>
 
-                <div className="flex justify-between items-center pt-2 border-t border-gray-200 mt-2">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={item.isSticky}
-                      onChange={(e) => updateTimelineItem(index, 'isSticky', e.target.checked)}
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className={item.isSticky ? "text-indigo-600 font-medium" : "text-gray-600"}>
-                      置顶高亮 (Sticky)
-                    </span>
-                  </label>
+                <div className="flex justify-end mt-4 pt-4 border-t border-gray-300">
                   <button
                     onClick={() => removeTimelineItem(index)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold"
+                    style={{ fontFamily: 'Comic Sans MS, cursive' }}
                   >
                     <Trash2 className="w-4 h-4" />
+                    删除
                   </button>
                 </div>
               </div>
             ))}
-            {aboutMe.timeline.length === 0 && (
-               <p className="text-center text-gray-500 text-sm py-4">暂无经历，点击右上角添加</p>
+            {profile.timeline.length === 0 && (
+              <p className="text-center text-gray-500 text-sm py-8">暂无经历，点击右上角添加</p>
             )}
           </div>
         </div>

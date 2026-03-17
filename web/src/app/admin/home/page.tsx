@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useContentStore, SocialLink } from "@/store/useContentStore";
-import { Save, Loader2, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useContentStore } from '@/store/useContentStore';
+import { Save, Loader2, Plus, Trash2, Image } from 'lucide-react';
 
 export default function AdminHome() {
-  const { home, fetchData, updateHome, saveData, isLoading } = useContentStore();
+  const { profile, fetchData, updateProfile, saveData } = useContentStore();
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -14,143 +14,66 @@ export default function AdminHome() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    await saveData();
-    setIsSaving(false);
+    try {
+      await saveData();
+      alert('保存成功!');
+    } catch (error) {
+      alert('保存失败，请重试');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSocialChange = (index: number, field: keyof SocialLink, value: string) => {
-    const newSocials = [...home.socialLinks];
-    newSocials[index] = { ...newSocials[index], [field]: value };
-    updateHome({ socialLinks: newSocials });
-  };
-
-  const addSocialLink = () => {
-    updateHome({
-      socialLinks: [...home.socialLinks, { platform: "", url: "", icon: "default" }]
-    });
-  };
-
-  const removeSocialLink = (index: number) => {
-    const newSocials = home.socialLinks.filter((_, i) => i !== index);
-    updateHome({ socialLinks: newSocials });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+  if (!profile) return null;
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="space-y-8 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">首页管理</h1>
+        <h1 className="text-3xl font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          🏠 首页信息管理
+        </h1>
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 disabled:opacity-50 transition-all shadow-lg"
+          style={{ fontFamily: 'Comic Sans MS, cursive' }}
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           保存更改
         </button>
       </div>
 
-      <div className="grid gap-6">
-        <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-          <h2 className="text-xl font-semibold border-b pb-2">核心内容</h2>
-          
-          {/* Slogan */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Slogan (标语)</label>
-            <input
-              type="text"
-              value={home.slogan}
-              onChange={(e) => updateHome({ slogan: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-          </div>
-
-          {/* Dynamic Update */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">动态更新 (Dynamic Update)</label>
-            <input
-              type="text"
-              value={home.dynamicUpdate}
-              onChange={(e) => updateHome({ dynamicUpdate: e.target.value })}
-              placeholder="e.g., 新项目「Cheat」上新"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-          </div>
-
-          {/* Cover Image */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">封面图片 URL</label>
-            <input
-              type="text"
-              value={home.coverImage}
-              onChange={(e) => updateHome({ coverImage: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-            {home.coverImage && (
-              <div className="mt-2 relative h-40 w-full overflow-hidden rounded-md bg-gray-100">
-                 <img src={home.coverImage} alt="Cover Preview" className="h-full w-full object-cover" />
-              </div>
-            )}
-          </div>
+      <div className="bg-white p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-400">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          📋 价值主张
+        </h2>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-gray-700">个人 Slogan</label>
+          <input
+            type="text"
+            value={profile.valueSentence}
+            onChange={(e) => updateProfile({ valueSentence: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
+            placeholder="掌握生产资料，不做被市场定价的商品..."
+          />
         </div>
+      </div>
 
-        {/* Social Links */}
-        <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b pb-2">
-             <h2 className="text-xl font-semibold">社交链接</h2>
-             <button
-               onClick={addSocialLink}
-               className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-             >
-               <Plus className="w-4 h-4" /> 添加链接
-             </button>
-          </div>
-
-          <div className="space-y-4">
-            {home.socialLinks.map((link, index) => (
-              <div key={index} className="flex gap-4 items-start p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1 space-y-2">
-                   <input
-                     type="text"
-                     placeholder="平台名称 (e.g. WeChat)"
-                     value={link.platform}
-                     onChange={(e) => handleSocialChange(index, "platform", e.target.value)}
-                     className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                   />
-                   <input
-                     type="text"
-                     placeholder="URL / ID"
-                     value={link.url}
-                     onChange={(e) => handleSocialChange(index, "url", e.target.value)}
-                     className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                   />
-                    <input
-                     type="text"
-                     placeholder="Icon Key (e.g. wechat, github)"
-                     value={link.icon}
-                     onChange={(e) => handleSocialChange(index, "icon", e.target.value)}
-                     className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                   />
-                </div>
-                <button
-                  onClick={() => removeSocialLink(index)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-md"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            {home.socialLinks.length === 0 && (
-              <p className="text-center text-gray-500 text-sm py-4">暂无社交链接，点击右上角添加</p>
-            )}
-          </div>
+      <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-8 rounded-3xl border-2 border-dashed border-pink-300">
+        <h3 className="text-xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          💡 首页内容说明
+        </h3>
+        <div className="space-y-3 text-gray-700">
+          <p>
+            <strong className="text-pink-600">头像:</strong> 请在前台页面查看，暂时使用固定图片
+          </p>
+          <p>
+            <strong className="text-pink-600">兴趣卡片:</strong> 当前为固定内容，后续可在此页面扩展编辑
+          </p>
+          <p>
+            <strong className="text-pink-600">社交链接:</strong> 请在"联系信息"页面管理
+          </p>
         </div>
       </div>
     </div>

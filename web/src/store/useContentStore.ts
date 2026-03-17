@@ -1,13 +1,77 @@
 import { create } from 'zustand';
-// import { persist } from 'zustand/middleware'; // Removed persist as we are using API/JSON now
 
 // --- Type Definitions based on siteData.json ---
 
 export interface GlobalSettings {
   siteTitle: string;
   logoText: string;
-  isFlowTextEnabled: boolean;
-  contactEmail: string;
+  theme: string;
+  description: string;
+}
+
+export interface BasicInfo {
+  name: string;
+  age: number;
+  location: string;
+  education: string;
+  personality: string;
+}
+
+export interface TimelineItem {
+  id: string;
+  category: string;
+  time: string;
+  event: string;
+  result: string;
+  emoji: string;
+}
+
+export interface ProfileContent {
+  basicInfo: BasicInfo;
+  role: string;
+  abilityTags: string[];
+  timeline: TimelineItem[];
+  valueSentence: string;
+}
+
+export interface ProjectHighlight {
+  id?: string;
+  text: string;
+}
+
+export interface ProjectTimelineItem {
+  date: string;
+  event: string;
+}
+
+export interface ProjectItem {
+  id: string;
+  name: string;
+  category: string;
+  status: string;
+  progress: number;
+  description: string;
+  highlights: string[];
+  timeline: ProjectTimelineItem[];
+  images: string[];
+}
+
+export interface BlogArticle {
+  id: string;
+  title: string;
+  cover: string;
+  summary: string;
+  content?: string;
+  publishDate: string;
+  isSticky: boolean;
+  category: string;
+}
+
+export interface BlogContent {
+  title: string;
+  description: string;
+  categories: string[];
+  articles: BlogArticle[];
 }
 
 export interface SocialLink {
@@ -16,97 +80,21 @@ export interface SocialLink {
   icon: string;
 }
 
-export interface HomeContent {
-  slogan: string;
-  dynamicUpdate: string;
-  coverImage: string;
+export interface ContactContent {
+  email: string;
+  wechat: string;
+  phone: string;
   socialLinks: SocialLink[];
-}
-
-export interface TimelineItem {
-  id: string; // Added ID for keying
-  category: string;
-  time: string;
-  event: string;
-  result: string;
-  isSticky: boolean;
-}
-
-export interface AboutMeContent {
-  location?: string;
-  role?: string;
-  expertOn?: string;
-  abilityTags: string[];
-  timeline: TimelineItem[];
-  valueSentence: string;
-}
-
-export interface ProjectModule {
-  title: string;
-  content: string;
-  images: string[];
-}
-
-export interface FuturePlanItem {
-  id: string;
-  date: string;
-  title: string;
-}
-
-export interface ProjectTimelineItem {
-  id: string;
-  title: string;
-  date: string;
-  content: string;
-  images?: string[];
-  type?: 'brand' | 'module';
-}
-
-export interface ProjectProgressContent {
-  brandName: string;
-  brandSlogan: string;
-  coreBusiness: ProjectModule; // Keeping for safety during migration
-  futurePlan: FuturePlanItem[]; // Keeping for safety during migration
-  timeline: ProjectTimelineItem[];
-}
-
-export interface ArticleItem {
-  id: string; // Added ID
-  title: string;
-  cover: string;
-  summary: string;
-  publishDate: string;
-  views: number;
-  isSticky: boolean;
-  category: string; // Made required
-}
-
-export interface EntrepreneurshipContent {
-  title: string;
-  description: string;
-  categories: string[];
-  articles: ArticleItem[];
-}
-
-export interface GrowthNotesContent {
-  categories: string[];
-  articles: ArticleItem[];
-  reviewSection: any[]; // Placeholder
-}
-
-export interface ContactSettings {
   autoReplyMessage: string;
   formTypes: string[];
 }
 
 export interface SiteData {
   global: GlobalSettings;
-  home: HomeContent;
-  aboutMe: AboutMeContent;
-  projectProgress: ProjectProgressContent;
-  entrepreneurship: EntrepreneurshipContent;
-  growthNotes: GrowthNotesContent;
-  contact: ContactSettings;
+  profile: ProfileContent;
+  projects: ProjectItem[];
+  blog: BlogContent;
+  contact: ContactContent;
 }
 
 export interface ContentState extends SiteData {
@@ -119,12 +107,10 @@ export interface ContentState extends SiteData {
   
   // Updaters (for Admin UI)
   updateGlobal: (data: Partial<GlobalSettings>) => void;
-  updateHome: (data: Partial<HomeContent>) => void;
-  updateAboutMe: (data: Partial<AboutMeContent>) => void;
-  updateProjectProgress: (data: Partial<ProjectProgressContent>) => void;
-  updateEntrepreneurship: (data: Partial<EntrepreneurshipContent>) => void;
-  updateGrowthNotes: (data: Partial<GrowthNotesContent>) => void;
-  updateContact: (data: Partial<ContactSettings>) => void;
+  updateProfile: (data: Partial<ProfileContent>) => void;
+  updateProjects: (projects: ProjectItem[]) => void;
+  updateBlog: (data: Partial<BlogContent>) => void;
+  updateContact: (data: Partial<ContactContent>) => void;
 }
 
 // --- Initial Empty State ---
@@ -132,42 +118,34 @@ const initialSiteData: SiteData = {
   global: {
     siteTitle: 'Loading...',
     logoText: 'Loading...',
-    isFlowTextEnabled: true,
-    contactEmail: '',
+    theme: 'doodle',
+    description: '',
   },
-  home: {
-    slogan: '',
-    dynamicUpdate: '',
-    coverImage: '',
-    socialLinks: [],
-  },
-  aboutMe: {
-    location: '',
+  profile: {
+    basicInfo: {
+      name: '',
+      age: 0,
+      location: '',
+      education: '',
+      personality: '',
+    },
     role: '',
-    expertOn: '',
     abilityTags: [],
     timeline: [],
     valueSentence: '',
   },
-  projectProgress: {
-    brandName: '',
-    brandSlogan: '',
-    coreBusiness: { title: '', content: '', images: [] },
-    futurePlan: [],
-    timeline: [],
-  },
-  entrepreneurship: {
+  projects: [],
+  blog: {
     title: '',
     description: '',
     categories: [],
     articles: [],
   },
-  growthNotes: {
-    categories: [],
-    articles: [],
-    reviewSection: [],
-  },
   contact: {
+    email: '',
+    wechat: '',
+    phone: '',
+    socialLinks: [],
     autoReplyMessage: '',
     formTypes: [],
   },
@@ -193,8 +171,8 @@ export const useContentStore = create<ContentState>((set, get) => ({
 
   saveData: async () => {
     try {
-      const { global, home, aboutMe, projectProgress, entrepreneurship, growthNotes, contact } = get();
-      const payload: SiteData = { global, home, aboutMe, projectProgress, entrepreneurship, growthNotes, contact };
+      const { global, profile, projects, blog, contact } = get();
+      const payload: SiteData = { global, profile, projects, blog, contact };
       
       const response = await fetch('/api/site-data', {
         method: 'POST',
@@ -205,14 +183,13 @@ export const useContentStore = create<ContentState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to save site data');
     } catch (error) {
       console.error('Error saving site data:', error);
+      throw error;
     }
   },
 
   updateGlobal: (data) => set((state) => ({ global: { ...state.global, ...data } })),
-  updateHome: (data) => set((state) => ({ home: { ...state.home, ...data } })),
-  updateAboutMe: (data) => set((state) => ({ aboutMe: { ...state.aboutMe, ...data } })),
-  updateProjectProgress: (data) => set((state) => ({ projectProgress: { ...state.projectProgress, ...data } })),
-  updateEntrepreneurship: (data) => set((state) => ({ entrepreneurship: { ...state.entrepreneurship, ...data } })),
-  updateGrowthNotes: (data) => set((state) => ({ growthNotes: { ...state.growthNotes, ...data } })),
+  updateProfile: (data) => set((state) => ({ profile: { ...state.profile, ...data } })),
+  updateProjects: (projects) => set({ projects }),
+  updateBlog: (data) => set((state) => ({ blog: { ...state.blog, ...data } })),
   updateContact: (data) => set((state) => ({ contact: { ...state.contact, ...data } })),
 }));

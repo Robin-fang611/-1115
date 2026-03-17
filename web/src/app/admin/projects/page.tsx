@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useContentStore, ProjectTimelineItem } from "@/store/useContentStore";
-import { Save, Loader2, Plus, Trash2, Image as ImageIcon } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState } from 'react';
+import { useContentStore, ProjectItem } from '@/store/useContentStore';
+import { Save, Loader2, Plus, Trash2, Image } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function AdminProjects() {
-  const { projectProgress, fetchData, updateProjectProgress, saveData, isLoading } = useContentStore();
+  const { projects, fetchData, updateProjects, saveData } = useContentStore();
   const [isSaving, setIsSaving] = useState(false);
+  const [editingProject, setEditingProject] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -15,206 +16,295 @@ export default function AdminProjects() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    await saveData();
-    setIsSaving(false);
-  };
-
-  // Timeline Handlers
-  const addTimelineItem = () => {
-    const newItem: ProjectTimelineItem = {
-      id: uuidv4(),
-      type: 'module',
-      title: 'New Module',
-      date: '',
-      content: '',
-      images: []
-    };
-    // Add to the end
-    updateProjectProgress({
-      timeline: [...(projectProgress.timeline || []), newItem]
-    });
-  };
-
-  const updateTimelineItem = (index: number, field: keyof ProjectTimelineItem, value: any) => {
-    const newTimeline = [...(projectProgress.timeline || [])];
-    newTimeline[index] = { ...newTimeline[index], [field]: value };
-    updateProjectProgress({ timeline: newTimeline });
-  };
-  
-  const updateItemImages = (index: number, images: string[]) => {
-      updateTimelineItem(index, 'images', images);
-  };
-
-  const removeTimelineItem = (index: number) => {
-    if (confirm('Are you sure you want to delete this module?')) {
-        const newTimeline = (projectProgress.timeline || []).filter((_, i) => i !== index);
-        updateProjectProgress({ timeline: newTimeline });
+    try {
+      await saveData();
+      alert('保存成功!');
+    } catch (error) {
+      alert('保存失败，请重试');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const moveItem = (index: number, direction: 'up' | 'down') => {
-      const newTimeline = [...(projectProgress.timeline || [])];
-      if (direction === 'up' && index > 0) {
-          [newTimeline[index], newTimeline[index - 1]] = [newTimeline[index - 1], newTimeline[index]];
-      } else if (direction === 'down' && index < newTimeline.length - 1) {
-          [newTimeline[index], newTimeline[index + 1]] = [newTimeline[index + 1], newTimeline[index]];
-      }
-      updateProjectProgress({ timeline: newTimeline });
+  const addProject = () => {
+    const newProject: ProjectItem = {
+      id: uuidv4(),
+      name: '新项目',
+      category: 'toC',
+      status: 'planning',
+      progress: 0,
+      description: '',
+      highlights: [],
+      timeline: [],
+      images: [],
+    };
+    updateProjects([newProject, ...projects]);
+    setEditingProject(newProject.id);
   };
 
-  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
+  const updateProject = (index: number, field: keyof ProjectItem, value: any) => {
+    const newProjects = [...projects];
+    newProjects[index] = { ...newProjects[index], [field]: value };
+    updateProjects(newProjects);
+  };
+
+  const removeProject = (index: number) => {
+    const newProjects = projects.filter((_, i) => i !== index);
+    updateProjects(newProjects);
+  };
+
+  const addHighlight = (projectIndex: number) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].highlights.push('新亮点');
+    updateProjects(newProjects);
+  };
+
+  const updateHighlight = (projectIndex: number, highlightIndex: number, value: string) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].highlights[highlightIndex] = value;
+    updateProjects(newProjects);
+  };
+
+  const removeHighlight = (projectIndex: number, highlightIndex: number) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].highlights.splice(highlightIndex, 1);
+    updateProjects(newProjects);
+  };
+
+  const addTimelineEvent = (projectIndex: number) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].timeline.push({ date: new Date().toISOString().split('T')[0], event: '新事件' });
+    updateProjects(newProjects);
+  };
+
+  const updateTimelineEvent = (projectIndex: number, timelineIndex: number, field: 'date' | 'event', value: string) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].timeline[timelineIndex] = { 
+      ...newProjects[projectIndex].timeline[timelineIndex], 
+      [field]: value 
+    };
+    updateProjects(newProjects);
+  };
+
+  const removeTimelineEvent = (projectIndex: number, timelineIndex: number) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].timeline.splice(timelineIndex, 1);
+    updateProjects(newProjects);
+  };
+
+  const addImage = (projectIndex: number) => {
+    const url = prompt('请输入图片 URL:');
+    if (url) {
+      const newProjects = [...projects];
+      newProjects[projectIndex].images.push(url);
+      updateProjects(newProjects);
+    }
+  };
+
+  const removeImage = (projectIndex: number, imageIndex: number) => {
+    const newProjects = [...projects];
+    newProjects[projectIndex].images.splice(imageIndex, 1);
+    updateProjects(newProjects);
+  };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-20">
-      <div className="flex items-center justify-between sticky top-0 bg-gray-50 py-4 z-10 border-b border-gray-200 mb-6">
-        <h1 className="text-3xl font-bold">项目进展管理 (Projects Timeline)</h1>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors shadow-lg"
-        >
-          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          保存更改 (Save)
-        </button>
+    <div className="space-y-8 max-w-6xl">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          📁 项目管理
+        </h1>
+        <div className="flex gap-3">
+          <button
+            onClick={addProject}
+            className="flex items-center gap-2 px-6 py-3 bg-pink-100 text-pink-700 font-bold rounded-xl hover:bg-pink-200 transition-all"
+            style={{ fontFamily: 'Comic Sans MS, cursive' }}
+          >
+            <Plus className="w-4 h-4" />
+            添加项目
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-6 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 disabled:opacity-50 transition-all shadow-lg"
+            style={{ fontFamily: 'Comic Sans MS, cursive' }}
+          >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            保存更改
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Brand Info (Global for Projects) */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <h2 className="text-lg font-bold mb-4">全局设置</h2>
-            <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Brand Name</label>
-                    <input 
-                        type="text" 
-                        value={projectProgress.brandName} 
-                        onChange={(e) => updateProjectProgress({ brandName: e.target.value })}
-                        className="w-full p-2 border rounded-md"
-                    />
-                 </div>
-                 <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Brand Slogan</label>
-                    <input 
-                        type="text" 
-                        value={projectProgress.brandSlogan} 
-                        onChange={(e) => updateProjectProgress({ brandSlogan: e.target.value })}
-                        className="w-full p-2 border rounded-md"
-                    />
-                 </div>
-            </div>
-        </div>
-
-        {/* Timeline Items List */}
-        {(projectProgress.timeline || []).map((item, index) => (
-            <div key={item.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group">
-                <div className="absolute top-4 right-4 flex gap-2">
-                     <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30" title="Move Up">↑</button>
-                     <button onClick={() => moveItem(index, 'down')} disabled={index === (projectProgress.timeline?.length || 0) - 1} className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30" title="Move Down">↓</button>
-                     <button onClick={() => removeTimelineItem(index)} className="p-2 text-red-400 hover:text-red-600" title="Delete"><Trash2 size={18} /></button>
+      <div className="grid gap-6">
+        {projects.map((project, projectIndex) => (
+          <div key={project.id} className="bg-white p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-400">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-4">
+                  <input
+                    type="text"
+                    value={project.name}
+                    onChange={(e) => updateProject(projectIndex, 'name', e.target.value)}
+                    className="text-2xl font-bold text-gray-800 border-b-2 border-gray-300 focus:border-pink-500 focus:outline-none bg-transparent"
+                    style={{ fontFamily: 'Comic Sans MS, cursive' }}
+                  />
+                  <select
+                    value={project.category}
+                    onChange={(e) => updateProject(projectIndex, 'category', e.target.value)}
+                    className="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-bold text-gray-800 focus:border-pink-500"
+                  >
+                    <option value="toB">toB</option>
+                    <option value="toC">toC</option>
+                  </select>
+                  <select
+                    value={project.status}
+                    onChange={(e) => updateProject(projectIndex, 'status', e.target.value)}
+                    className="px-4 py-2 border-2 border-gray-300 rounded-xl text-sm font-bold text-gray-800 focus:border-pink-500"
+                  >
+                    <option value="planning">规划中</option>
+                    <option value="in-progress">进行中</option>
+                    <option value="validation">验证期</option>
+                    <option value="completed">已完成</option>
+                  </select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                    {/* Left: Type & Date */}
-                    <div className="md:col-span-3 space-y-4">
-                        <div className="bg-gray-50 p-3 rounded-lg text-center">
-                            <span className="text-xl font-bold text-gray-400">#{index + 1}</span>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Type</label>
-                            <select 
-                                value={item.type || 'module'} 
-                                onChange={(e) => updateTimelineItem(index, 'type', e.target.value)}
-                                className="w-full p-2 border rounded-md bg-white text-sm"
-                            >
-                                <option value="brand">Brand / Button (Header)</option>
-                                <option value="module">Standard Module</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Date / Status</label>
-                            <input 
-                                type="text" 
-                                value={item.date} 
-                                onChange={(e) => updateTimelineItem(index, 'date', e.target.value)}
-                                className="w-full p-2 border rounded-md text-sm"
-                                placeholder="e.g. 2024 Q1"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Middle: Content */}
-                    <div className="md:col-span-9 space-y-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Title</label>
-                            <input 
-                                type="text" 
-                                value={item.title} 
-                                onChange={(e) => updateTimelineItem(index, 'title', e.target.value)}
-                                className="w-full p-2 border rounded-md font-medium"
-                                placeholder="Module Title"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Content (Markdown / Text)</label>
-                            <textarea 
-                                value={item.content} 
-                                onChange={(e) => updateTimelineItem(index, 'content', e.target.value)}
-                                className="w-full p-2 border rounded-md font-mono text-sm h-32"
-                                placeholder="Description or list..."
-                            />
-                        </div>
-
-                        {/* Images Section */}
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                                <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-2">
-                                    <ImageIcon size={14} /> Images ({item.images?.length || 0})
-                                </label>
-                                <button 
-                                    onClick={() => updateItemImages(index, [...(item.images || []), '/placeholder.jpg'])}
-                                    className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                                >
-                                    <Plus size={12} /> Add Image
-                                </button>
-                            </div>
-                            <div className="space-y-2">
-                                {(item.images || []).map((img, imgIdx) => (
-                                    <div key={imgIdx} className="flex gap-2">
-                                        <input 
-                                            type="text" 
-                                            value={img} 
-                                            onChange={(e) => {
-                                                const newImages = [...(item.images || [])];
-                                                newImages[imgIdx] = e.target.value;
-                                                updateItemImages(index, newImages);
-                                            }}
-                                            className="flex-1 p-2 border rounded-md text-xs"
-                                            placeholder="Image URL"
-                                        />
-                                        <button 
-                                            onClick={() => {
-                                                const newImages = (item.images || []).filter((_, i) => i !== imgIdx);
-                                                updateItemImages(index, newImages);
-                                            }}
-                                            className="text-red-400 hover:text-red-600 p-1"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">项目描述</label>
+                  <textarea
+                    value={project.description}
+                    onChange={(e) => updateProject(projectIndex, 'description', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
+                    rows={3}
+                  />
                 </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-2 ml-6">
+                <div className="text-4xl font-bold text-pink-600">{project.progress}%</div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={project.progress}
+                  onChange={(e) => updateProject(projectIndex, 'progress', parseInt(e.target.value))}
+                  className="w-24 accent-pink-500"
+                />
+                <button
+                  onClick={() => removeProject(projectIndex)}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold"
+                  style={{ fontFamily: 'Comic Sans MS, cursive' }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  删除
+                </button>
+              </div>
             </div>
+
+            {/* Highlights */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                  ✨ 项目亮点
+                </h3>
+                <button
+                  onClick={() => addHighlight(projectIndex)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-pink-100 text-pink-700 text-sm font-bold rounded-lg hover:bg-pink-200 transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  添加亮点
+                </button>
+              </div>
+              <div className="space-y-2">
+                {project.highlights.map((highlight, hIndex) => (
+                  <div key={hIndex} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={highlight}
+                      onChange={(e) => updateHighlight(projectIndex, hIndex, e.target.value)}
+                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
+                    />
+                    <button
+                      onClick={() => removeHighlight(projectIndex, hIndex)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                  📅 项目时间轴
+                </h3>
+                <button
+                  onClick={() => addTimelineEvent(projectIndex)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-pink-100 text-pink-700 text-sm font-bold rounded-lg hover:bg-pink-200 transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  添加事件
+                </button>
+              </div>
+              <div className="space-y-2">
+                {project.timeline.map((event, tIndex) => (
+                  <div key={tIndex} className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={event.date}
+                      onChange={(e) => updateTimelineEvent(projectIndex, tIndex, 'date', e.target.value)}
+                      className="w-32 px-3 py-2 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800 text-sm"
+                      placeholder="日期"
+                    />
+                    <input
+                      type="text"
+                      value={event.event}
+                      onChange={(e) => updateTimelineEvent(projectIndex, tIndex, 'event', e.target.value)}
+                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 text-gray-800"
+                      placeholder="事件"
+                    />
+                    <button
+                      onClick={() => removeTimelineEvent(projectIndex, tIndex)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Images */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                  🖼️ 项目图片
+                </h3>
+                <button
+                  onClick={() => addImage(projectIndex)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-pink-100 text-pink-700 text-sm font-bold rounded-lg hover:bg-pink-200 transition-all"
+                >
+                  <Image className="w-4 h-4" />
+                  添加图片
+                </button>
+              </div>
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                {project.images.map((img, imgIndex) => (
+                  <div key={imgIndex} className="relative group">
+                    <img src={img} alt="Project" className="w-full h-32 object-cover rounded-xl border-2 border-gray-300" />
+                    <button
+                      onClick={() => removeImage(projectIndex, imgIndex)}
+                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ))}
-
-        <button 
-            onClick={addTimelineItem}
-            className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-gray-400 hover:text-gray-600 flex items-center justify-center gap-2 transition-colors"
-        >
-            <Plus size={20} /> Add New Module
-        </button>
       </div>
     </div>
   );
