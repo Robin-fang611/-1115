@@ -1,6 +1,5 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
@@ -17,16 +16,20 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      const result = await signIn('credentials', {
-        password,
-        redirect: false,
+      // 调用 API 验证密码
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
       });
 
-      if (result?.error) {
-        setError('密码错误，请重试');
-      } else {
-        // 登录成功后重定向到 dashboard
+      const result = await response.json();
+
+      if (response.ok) {
+        // 登录成功，跳转到 dashboard
         router.push('/admin/dashboard');
+      } else {
+        setError(result.error || '密码错误，请重试');
       }
     } catch (err) {
       setError('登录失败，请稍后重试');
