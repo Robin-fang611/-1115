@@ -62,6 +62,13 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // 重定向到 dashboard
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      return baseUrl + '/admin/dashboard';
     }
   },
   secret: process.env.NEXTAUTH_SECRET,

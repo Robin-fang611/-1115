@@ -25,10 +25,10 @@ export default function AdminLoginPage() {
       if (result?.error) {
         setError('密码错误，请重试');
       } else {
+        // 登录成功后重定向到 dashboard
         router.push('/admin/dashboard');
-        router.refresh();
       }
-    } catch {
+    } catch (err) {
       setError('登录失败，请稍后重试');
     } finally {
       setIsLoading(false);
