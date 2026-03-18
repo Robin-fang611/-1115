@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
 
@@ -8,35 +8,27 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // 调用 API 验证密码
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // 登录成功，跳转到 dashboard
-        router.push('/admin/dashboard');
-      } else {
-        setError(result.error || '密码错误，请重试');
-      }
-    } catch (err) {
-      setError('登录失败，请稍后重试');
-    } finally {
-      setIsLoading(false);
+    
+    // 简单密码验证（客户端验证，防君子不防小人）
+    if (password === '61157252bB@') {
+      // 密码正确，存储到 localStorage
+      localStorage.setItem('admin_access', 'true');
+      router.push('/admin/dashboard');
+    } else {
+      setError('密码错误');
     }
   };
+
+  // 检查是否已经登录
+  useEffect(() => {
+    const hasAccess = localStorage.getItem('admin_access');
+    if (hasAccess === 'true') {
+      router.push('/admin/dashboard');
+    }
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100">
@@ -74,11 +66,10 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             style={{ fontFamily: 'Comic Sans MS, cursive' }}
           >
-            {isLoading ? '登录中...' : '登录后台'}
+            登录后台
           </button>
         </form>
 
