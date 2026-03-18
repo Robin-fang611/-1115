@@ -17,8 +17,8 @@ export default function Home() {
   if (!mounted) return <div className="min-h-screen bg-yellow-50 flex items-center justify-center">Loading...</div>;
 
   const socialLinks = siteData.contact.socialLinks;
-  const intro = siteData.profile.intro;
-  const interests = siteData.profile.interests;
+  const profile = siteData.profile;
+  const basicInfo = profile.basicInfo;
 
   const getIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -30,16 +30,13 @@ export default function Home() {
     }
   };
 
-  const getInterestIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'music': return Music;
-      case 'gaming': return Gamepad2;
-      case 'art': return Palette;
-      case 'fitness': return Dumbbell;
-      case 'tech': return Code;
-      case 'reading': return BookOpen;
-      default: return Heart;
-    }
+  const getAbilityIcon = (ability: string) => {
+    if (ability.includes('AI')) return Code;
+    if (ability.includes('音乐') || ability.includes('吉他')) return Music;
+    if (ability.includes('书法')) return Palette;
+    if (ability.includes('健身')) return Dumbbell;
+    if (ability.includes('游戏')) return Gamepad2;
+    return Heart;
   };
 
   return (
@@ -62,7 +59,7 @@ export default function Home() {
               className="text-6xl md:text-8xl font-bold mb-6 text-gray-800"
               style={{ fontFamily: 'Comic Sans MS, cursive' }}
             >
-              {intro.headline}
+              {basicInfo.name}'s Island
             </h1>
           </motion.div>
           
@@ -73,7 +70,7 @@ export default function Home() {
             className="text-2xl md:text-3xl text-gray-700 mb-12"
             style={{ fontFamily: 'Comic Sans MS, cursive' }}
           >
-            {intro.subheadline}
+            {profile.role}
           </motion.p>
 
           <motion.div
@@ -82,11 +79,11 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex justify-center gap-4 md:gap-6 flex-wrap"
           >
-            {interests.map((interest, i) => {
-              const Icon = getInterestIcon(interest.type);
+            {profile.abilityTags.slice(0, 5).map((ability, i) => {
+              const Icon = getAbilityIcon(ability);
               return (
                 <motion.div
-                  key={interest.type}
+                  key={ability}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.8 + i * 0.1, type: "spring", stiffness: 100 }}
@@ -98,7 +95,7 @@ export default function Home() {
                 >
                   <Icon size={24} className="text-gray-800" />
                   <span className="font-bold text-lg md:text-xl text-gray-800" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-                    {interest.label}
+                    {ability}
                   </span>
                 </motion.div>
               );
