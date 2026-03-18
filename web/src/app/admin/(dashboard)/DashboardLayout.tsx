@@ -1,36 +1,45 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useSession, getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/Sidebar';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // 直接从 API 获取 session，确保获取最新状态
-        const currentSession = await getSession();
-        
-        if (currentSession) {
-          // 如果有 session，更新 useSession 状态
-          update();
+        // 简化逻辑，直接使用 useSession 的结果
+        if (status === 'authenticated' && session) {
           setIsLoading(false);
-        } else {
+        } else if (status === 'unauthenticated' || !session) {
           // 无 session，重定向到登录页
           const loginUrl = `/admin/login?callbackUrl=${encodeURIComponent(pathname)}`;
           router.push(loginUrl);
+        } else {
+          // 还在加载中，等待一下
+          if (retryCount < 5) {
+            const timer = setTimeout(() => {
+              setRetryCount(prev => prev + 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+          } else {
+            // 重试多次后仍然加载中，认为是会话问题
+            setError('会话加载超时');
+            setIsLoading(false);
+          }
         }
       } catch (err) {
         setError('会话检查失败');
@@ -39,23 +48,16 @@ export default function DashboardLayout({
       }
     };
 
-    if (status === 'loading') {
-      // 如果 useSession 还在加载，主动检查 session
-      checkSession();
-    } else {
-      // useSession 已经有结果
-      const timer = setTimeout(() => {
-        if (!session) {
-          const loginUrl = `/admin/login?callbackUrl=${encodeURIComponent(pathname)}`;
-          router.push(loginUrl);
-        } else {
-          setIsLoading(false);
-        }
-      }, 100);
+    checkSession();
+  }, [session, status, router, pathname, retryCount]);
 
-      return () => clearTimeout(timer);
-    }
-  }, [session, status, router, pathname, update]);
+  const handleRetry = () => {
+    setIsLoading(true);
+    setError(null);
+    setRetryCount(0);
+    // 强制刷新页面
+    router.refresh();
+  };
 
   if (isLoading) {
     return (
@@ -75,12 +77,21 @@ export default function DashboardLayout({
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-800 mb-2">发生错误</h3>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => router.push('/admin/login')}
-            className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
-          >
-            重新登录
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleRetry}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              重试
+            </button>
+            <button
+              onClick={() => router.push('/admin/login')}
+              className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+            >
+              重新登录
+            </button>
+          </div>
         </div>
       </div>
     );
