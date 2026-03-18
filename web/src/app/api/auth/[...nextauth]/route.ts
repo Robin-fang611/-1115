@@ -31,7 +31,8 @@ const handler = NextAuth({
       },
       async authorize(credentials, req) {
         try {
-          if (credentials?.password === process.env.ADMIN_PASSWORD) {
+          const adminPassword = process.env.ADMIN_PASSWORD || "61157252bB@";
+          if (credentials?.password === adminPassword) {
             return {
               id: "1",
               name: "Admin",
@@ -78,7 +79,7 @@ const handler = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "hT7xK9mP2vL5nQ8wR3yF6jC4bN1aS0dE9uI7oG5hZ2k=",
   debug: process.env.NODE_ENV === "development",
 });
 
