@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/Sidebar';
 import { Loader2 } from 'lucide-react';
 
-export default function AdminLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
