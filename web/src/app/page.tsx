@@ -149,6 +149,22 @@ export default function Home() {
         </motion.div>
       </div>
 
+      {/* 底部版权信息 + 隐藏彩蛋 */}
+      <footer className="py-8 text-center text-gray-600 text-sm">
+        <p>© 2026 {basicInfo.name}'s Island. All rights reserved.</p>
+        <p className="mt-2 text-xs text-gray-400">
+          Made with ❤️ and ☕
+        </p>
+        {/* 隐藏的后台入口 - 只有您知道的小彩蛋 */}
+        <a 
+          href="/admin/login" 
+          className="mt-4 inline-block text-[10px] text-gray-300 hover:text-pink-400 transition-colors"
+          title="Admin Access"
+        >
+          🔐
+        </a>
+      </footer>
+
       {/* CSS 动画 */}
       <style jsx global>{`
         @keyframes gradientShift {
