@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,29 +24,29 @@ export default function AdminLoginPage() {
       const result = await signIn('credentials', {
         password,
         redirect: false,
+        callbackUrl: '/admin/dashboard',
       });
 
       if (result?.error) {
-        setError('密码错误');
-      } else {
+        setError('密码错误，请重试');
+      } else if (result?.ok) {
         router.push(callbackUrl);
+        router.refresh();
+      } else {
+        setError('登录失败，请稍后重试');
       }
     } catch (err) {
-      setError('登录失败，请稍后重试');
+      setError('网络错误，请检查连接后重试');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const session = await fetch('/api/auth/session').then(r => r.json());
-      if (session?.user) {
-        router.push(callbackUrl);
-      }
-    };
-    checkAuth();
-  }, [router, callbackUrl]);
+    if (status === 'authenticated' && session?.user) {
+      router.push(callbackUrl);
+    }
+  }, [status, session, router, callbackUrl]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100">
@@ -72,6 +73,7 @@ export default function AdminLoginPage() {
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all text-gray-800"
               placeholder="请输入管理员密码"
               autoFocus
+              disabled={loading}
             />
           </div>
 
