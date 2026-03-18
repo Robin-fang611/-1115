@@ -1,6 +1,27 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+// 自动检测 NEXTAUTH_URL
+const getAuthUrl = () => {
+  // 开发环境
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  // Vercel 环境
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // 其他环境
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL;
+  }
+  
+  // 默认值
+  return 'http://localhost:3000';
+};
+
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
