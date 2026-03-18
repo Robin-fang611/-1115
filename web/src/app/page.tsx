@@ -16,7 +16,7 @@ export default function Home() {
 
   if (!mounted) return <div className="min-h-screen bg-yellow-50 flex items-center justify-center">Loading...</div>;
 
-  const socialLinks = siteData.profile.socialLinks;
+  const socialLinks = siteData.contact.socialLinks;
   const intro = siteData.profile.intro;
   const interests = siteData.profile.interests;
 
@@ -25,6 +25,7 @@ export default function Home() {
       case 'wechat': return Mail;
       case 'xiaohongshu': return BookOpen;
       case 'github': return Code;
+      case 'email': return Mail;
       default: return MessageCircle;
     }
   };
@@ -125,7 +126,7 @@ export default function Home() {
                 <div
                   className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center border-4 border-dashed border-gray-400 shadow-lg transition-all duration-300 group-hover:shadow-xl"
                   style={{
-                    backgroundColor: ['#07c160', '#ff2442', '#ff6b6b'][i],
+                    backgroundColor: ['#07c160', '#ff2442', '#ff6b6b'][i % 3],
                     transform: 'rotate(0deg)',
                     transition: 'transform 0.3s ease'
                   }}
