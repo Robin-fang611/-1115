@@ -1,34 +1,51 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard';
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    // 简单密码验证（客户端验证，防君子不防小人）
-    if (password === '61157252bB@') {
-      // 密码正确，存储到 localStorage
-      localStorage.setItem('admin_access', 'true');
-      router.push('/admin/dashboard');
-    } else {
-      setError('密码错误');
+    try {
+      const result = await signIn('credentials', {
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('密码错误');
+      } else {
+        router.push(callbackUrl);
+      }
+    } catch (err) {
+      setError('登录失败，请稍后重试');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 检查是否已经登录
   useEffect(() => {
-    const hasAccess = localStorage.getItem('admin_access');
-    if (hasAccess === 'true') {
-      router.push('/admin/dashboard');
-    }
-  }, [router]);
+    const checkAuth = async () => {
+      const session = await fetch('/api/auth/session').then(r => r.json());
+      if (session?.user) {
+        router.push(callbackUrl);
+      }
+    };
+    checkAuth();
+  }, [router, callbackUrl]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100">
@@ -66,10 +83,11 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fontFamily: 'Comic Sans MS, cursive' }}
           >
-            登录后台
+            {loading ? '登录中...' : '登录后台'}
           </button>
         </form>
 
