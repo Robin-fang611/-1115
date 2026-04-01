@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/Sidebar';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
@@ -11,52 +10,66 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkAuth = async () => {
       try {
-        // 简化逻辑，直接使用 useSession 的结果
-        if (status === 'authenticated' && session) {
+        // 检查是否有认证 cookie
+        const response = await fetch('/api/auth/check', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
           setIsLoading(false);
-        } else if (status === 'unauthenticated' || !session) {
-          // 无 session，重定向到登录页
+        } else {
+          // 未认证，重定向到登录页
           const loginUrl = `/admin/login?callbackUrl=${encodeURIComponent(pathname)}`;
           router.push(loginUrl);
-        } else {
-          // 还在加载中，等待一下
-          if (retryCount < 5) {
-            const timer = setTimeout(() => {
-              setRetryCount(prev => prev + 1);
-            }, 1000);
-            return () => clearTimeout(timer);
-          } else {
-            // 重试多次后仍然加载中，认为是会话问题
-            setError('会话加载超时');
-            setIsLoading(false);
-          }
         }
       } catch (err) {
-        setError('会话检查失败');
-        console.error('Session check error:', err);
+        setError('认证检查失败');
+        console.error('Auth check error:', err);
         setIsLoading(false);
       }
     };
 
-    checkSession();
-  }, [session, status, router, pathname, retryCount]);
+    checkAuth();
+  }, [router, pathname]);
 
   const handleRetry = () => {
     setIsLoading(true);
     setError(null);
-    setRetryCount(0);
-    // 强制刷新页面
-    router.refresh();
+    // 重新检查认证状态
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setIsLoading(false);
+        } else {
+          const loginUrl = `/admin/login?callbackUrl=${encodeURIComponent(pathname)}`;
+          router.push(loginUrl);
+        }
+      } catch (err) {
+        setError('认证检查失败');
+        console.error('Auth check error:', err);
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   };
 
   if (isLoading) {
@@ -95,10 +108,6 @@ export default function DashboardLayout({
         </div>
       </div>
     );
-  }
-
-  if (!session) {
-    return null;
   }
 
   return (

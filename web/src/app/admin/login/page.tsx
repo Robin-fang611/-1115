@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
-import { Lock, RefreshCw } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status, update } = useSession();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,16 +19,20 @@ export default function AdminLoginPage() {
     setError('');
     
     try {
-      // 直接使用 redirect: true，让 NextAuth 处理重定向
-      const result = await signIn('credentials', {
-        password,
-        redirect: true,
-        callbackUrl: callbackUrl,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
       });
 
-      // 如果重定向失败，result 会返回
-      if (result?.error) {
-        setError('登录失败: ' + result.error);
+      const result = await response.json();
+
+      if (result.success) {
+        router.push(callbackUrl);
+      } else {
+        setError(result.error || '登录失败');
       }
     } catch (err) {
       setError('网络错误，请检查连接后重试');
@@ -38,23 +40,6 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    // 检查认证状态
-    if (status === 'authenticated' && session?.user) {
-      console.log('Session authenticated:', session);
-      router.push(callbackUrl);
-    } else if (status === 'unauthenticated') {
-      console.log('Session unauthenticated');
-    } else {
-      console.log('Session loading...');
-    }
-  }, [status, session, router, callbackUrl]);
-
-  const handleRetry = () => {
-    setError('');
-    update();
   };
 
   return (
@@ -89,14 +74,6 @@ export default function AdminLoginPage() {
           {error && (
             <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-sm">
               {error}
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="ml-2 text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" />
-                重试
-              </button>
             </div>
           )}
 

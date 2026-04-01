@@ -4,7 +4,6 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeInitializer } from "@/components/ThemeInitializer";
-import NextAuthProvider from "@/components/NextAuthProvider";
 import fs from 'fs';
 import { getDataFilePath, SITE_DATA_FILENAME } from '@/lib/dataPaths';
 
@@ -45,14 +44,12 @@ export default function RootLayout({
       <body
         className={`${notoSansSC.variable} font-sans antialiased bg-white text-gray-900 min-h-screen flex flex-col`}
       >
-        <NextAuthProvider>
-          <ThemeInitializer />
-          <Navbar />
-          <main className="flex-grow pt-[72px]">
-            {children}
-          </main>
-          <Footer />
-        </NextAuthProvider>
+        <ThemeInitializer />
+        <Navbar />
+        <main className="flex-grow pt-[72px]">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

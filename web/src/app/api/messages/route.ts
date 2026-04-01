@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import { getDataFilePath, MESSAGES_FILENAME, safeWriteJson } from '@/lib/dataPaths';
+import { contactFormSchema } from '@/lib/validation';
+import { apiSuccess, apiError, apiNotFound, apiValidationError } from '@/lib/api';
+import { Message } from '@/types';
 
 const MESSAGES_FILE = getDataFilePath(MESSAGES_FILENAME);
 
 export async function GET() {
   try {
     if (!fs.existsSync(MESSAGES_FILE)) {
-      return NextResponse.json([]);
+      return apiSuccess([]);
     }
     const fileData = fs.readFileSync(MESSAGES_FILE, 'utf-8');
-    const messages = JSON.parse(fileData);
-    return NextResponse.json(messages);
+    const messages: Message[] = JSON.parse(fileData);
+    return apiSuccess(messages);
   } catch (error) {
     console.error('Failed to read messages:', error);
-    return NextResponse.json({ error: 'Failed to read messages' }, { status: 500 });
+    return apiError('Failed to read messages');
   }
 }
 
@@ -22,15 +25,20 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    let messages = [];
+    const validation = contactFormSchema.safeParse(body);
+    if (!validation.success) {
+      return apiValidationError(validation.error.errors);
+    }
+
+    let messages: Message[] = [];
     if (fs.existsSync(MESSAGES_FILE)) {
       const fileData = fs.readFileSync(MESSAGES_FILE, 'utf-8');
       messages = JSON.parse(fileData);
     }
 
-    const newMessage = {
+    const newMessage: Message = {
       id: Date.now().toString(),
-      ...body,
+      ...validation.data,
       createdAt: new Date().toISOString(),
       isRead: false,
     };
@@ -38,30 +46,35 @@ export async function POST(request: Request) {
     messages.unshift(newMessage);
     await safeWriteJson(MESSAGES_FILE, messages);
 
-    return NextResponse.json({ success: true, data: newMessage });
+    return apiSuccess(newMessage, 'Message sent successfully');
   } catch (error) {
     console.error('Failed to save message:', error);
-    return NextResponse.json({ error: 'Failed to save message' }, { status: 500 });
+    return apiError('Failed to save message');
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json();
+    const body = await request.json();
+    const { id } = body;
+    
+    if (!id) {
+      return apiError('Message ID is required', 400);
+    }
     
     if (!fs.existsSync(MESSAGES_FILE)) {
-      return NextResponse.json({ error: 'Messages file not found' }, { status: 404 });
+      return apiNotFound('Messages file not found');
     }
 
     const fileData = fs.readFileSync(MESSAGES_FILE, 'utf-8');
-    let messages = JSON.parse(fileData);
+    let messages: Message[] = JSON.parse(fileData);
 
-    messages = messages.filter((msg: any) => msg.id !== id);
+    messages = messages.filter((msg) => msg.id !== id);
     await safeWriteJson(MESSAGES_FILE, messages);
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ id }, 'Message deleted successfully');
   } catch (error) {
     console.error('Failed to delete message:', error);
-    return NextResponse.json({ error: 'Failed to delete message' }, { status: 500 });
+    return apiError('Failed to delete message');
   }
 }

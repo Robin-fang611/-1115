@@ -2,6 +2,7 @@
 /node_modules
 /.pnp
 .pnp.js
+.yarn/install-state.gz
 
 # testing
 /coverage
@@ -33,9 +34,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# data files (keep in production but ignore in git)
-/src/data/siteData.json
-/src/data/messages.json
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
 
-# uploads
-/public/uploads
+# OS
+Thumbs.db
+
+# Data backups
+*.bak

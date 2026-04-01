@@ -1,26 +1,8 @@
 import { NextResponse } from 'next/server';
+import { apiSuccess } from '@/lib/api';
+import { clearAuthCookie } from '@/lib/auth';
 
 export async function POST() {
-  try {
-    const response = NextResponse.json({ 
-      success: true, 
-      message: 'Logged out successfully' 
-    });
-    
-    response.cookies.set('next-auth.session-token', '', {
-      expires: new Date(0),
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
-    
-    return response;
-  } catch (error) {
-    console.error('Logout error:', error);
-    return NextResponse.json(
-      { success: false, message: 'Logout failed' },
-      { status: 500 }
-    );
-  }
+  const response = apiSuccess({ authenticated: false }, 'Logout successful');
+  return clearAuthCookie(response);
 }

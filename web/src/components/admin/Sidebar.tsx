@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { useRouter, usePathname } from 'next/navigation';
 import { LayoutDashboard, Home, User, FolderKanban, BookOpen, Settings, LogOut, MessageSquare, PenTool } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -17,10 +16,16 @@ const menuItems = [
 ];
 
 export function Sidebar() {
+  const router = useRouter();
   const pathname = usePathname();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/admin/login' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/admin/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
