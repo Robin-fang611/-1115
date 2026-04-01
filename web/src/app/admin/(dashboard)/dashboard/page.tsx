@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, HelpCircle, FolderKanban, MessageSquare, RefreshCw, Download, Plus, Filter } from 'lucide-react';
+import { BookOpen, HelpCircle, FolderKanban, MessageSquare, RefreshCw, Download, Plus, Filter, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useContentStore } from '@/store/useContentStore';
 
@@ -39,6 +39,15 @@ export default function AdminDashboard() {
     };
     fetchMessages();
   }, [fetchData, router]);
+
+  const handleRefresh = () => {
+    fetchData();
+  };
+
+  const handleExport = () => {
+    // 简单的导出功能实现
+    alert('导出功能开发中');
+  };
 
   if (isLoading) {
     return (
@@ -91,18 +100,34 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800">仪表盘</h1>
-          <p className="text-gray-500 text-sm mt-1">欢迎回来，管理员</p>
+          <h1 className="text-2xl font-bold text-gray-900">仪表盘</h1>
+          <p className="text-gray-600 text-sm mt-1">欢迎回来，管理员</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <RefreshCw className="w-4 h-4" />
-            刷新
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <Download className="w-4 h-4" />
-            导出
-          </button>
+          <div className="relative group">
+            <button 
+              onClick={handleRefresh}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              刷新
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+              刷新页面数据
+            </div>
+          </div>
+          <div className="relative group">
+            <button 
+              onClick={handleExport}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              导出
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+              导出数据为CSV文件
+            </div>
+          </div>
           <Dialog open={isGuideOpen} onOpenChange={setIsGuideOpen}>
             <DialogTrigger asChild>
               <button className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
@@ -142,7 +167,7 @@ export default function AdminDashboard() {
                   <Icon className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-semibold text-gray-800">
+              <div className="text-2xl font-semibold text-gray-900">
                 {typeof stat.value === 'number' ? stat.value : stat.value}
               </div>
             </div>
@@ -154,7 +179,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">快速操作</h3>
+            <h3 className="text-lg font-semibold text-gray-900">快速操作</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
             </button>
@@ -202,7 +227,7 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">最近活动</h3>
+            <h3 className="text-lg font-semibold text-gray-900">最近活动</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
             </button>
@@ -211,21 +236,21 @@ export default function AdminDashboard() {
             <div className="flex items-start gap-3">
               <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-800">系统启动</div>
+                <div className="text-sm font-medium text-gray-900">系统启动</div>
                 <div className="text-xs text-gray-500 mt-1">今天 10:00</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-800">数据同步完成</div>
+                <div className="text-sm font-medium text-gray-900">数据同步完成</div>
                 <div className="text-xs text-gray-500 mt-1">今天 09:30</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="w-2 h-2 rounded-full bg-gray-400 mt-2"></div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-800">上次登录</div>
+                <div className="text-sm font-medium text-gray-900">上次登录</div>
                 <div className="text-xs text-gray-500 mt-1">昨天 18:00</div>
               </div>
             </div>

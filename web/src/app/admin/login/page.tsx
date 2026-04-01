@@ -43,6 +43,10 @@ export default function AdminLoginPage() {
     }
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border border-gray-200">
@@ -50,8 +54,8 @@ export default function AdminLoginPage() {
           <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <Shield className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-2">后台管理登录</h1>
-          <p className="text-gray-500 text-sm">请输入管理员密码</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">后台管理登录</h1>
+          <p className="text-gray-600 text-sm">请输入管理员密码</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -63,7 +67,7 @@ export default function AdminLoginPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="请输入密码"
                 autoFocus
