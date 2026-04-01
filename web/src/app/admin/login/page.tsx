@@ -29,6 +29,8 @@ export default function AdminLoginPage() {
       const result = await response.json();
 
       if (result.success) {
+        // Set localStorage to match what dashboard expects
+        localStorage.setItem('admin_access', 'true');
         window.location.href = callbackUrl;
       } else {
         setError(result.error || '密码错误');
