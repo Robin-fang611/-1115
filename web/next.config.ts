@@ -17,10 +17,8 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
 };
 
 export default nextConfig;

@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
-import { apiSuccess } from '@/lib/api';
-import { clearAuthCookie } from '@/lib/auth';
 
 export async function POST() {
-  const response = apiSuccess({ authenticated: false }, 'Logout successful');
-  return clearAuthCookie(response);
+  const response = NextResponse.json({ success: true });
+  
+  response.cookies.set('admin_access', '', {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/',
+  });
+  
+  return response;
 }

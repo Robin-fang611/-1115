@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,12 +29,12 @@ export default function AdminLoginPage() {
       const result = await response.json();
 
       if (result.success) {
-        router.push(callbackUrl);
+        window.location.href = callbackUrl;
       } else {
-        setError(result.error || '登录失败');
+        setError(result.error || '密码错误');
       }
     } catch (err) {
-      setError('网络错误，请检查连接后重试');
+      setError('网络错误，请重试');
       console.error('Login error:', err);
     } finally {
       setLoading(false);
@@ -49,30 +48,30 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
             <Lock className="w-8 h-8 text-pink-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-            🔐 后台管理登录
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            后台管理登录
           </h1>
-          <p className="text-gray-600">Robin's Island Admin Panel</p>
+          <p className="text-gray-600">请输入管理员密码</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               管理员密码
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all text-gray-800"
-              placeholder="请输入管理员密码"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 transition-all"
+              placeholder="请输入密码"
               autoFocus
               disabled={loading}
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-sm">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
               {error}
             </div>
           )}
@@ -80,19 +79,18 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ fontFamily: 'Comic Sans MS, cursive' }}
+            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all disabled:opacity-50"
           >
-            {loading ? '登录中...' : '登录后台'}
+            {loading ? '登录中...' : '登录'}
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
           <a
             href="/"
-            className="flex items-center justify-center text-gray-600 hover:text-pink-600 transition-colors text-sm font-medium"
+            className="text-gray-600 hover:text-pink-600 transition-colors text-sm"
           >
-            ← 返回前台首页
+            ← 返回首页
           </a>
         </div>
       </div>
