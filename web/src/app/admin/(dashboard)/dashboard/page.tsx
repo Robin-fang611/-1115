@@ -172,24 +172,24 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-2">
           <h1 className="text-2xl font-bold text-blue-600">仪表盘</h1>
-          <p className="text-blue-500 text-sm mt-1">欢迎回来，管理员</p>
+          <p className="text-blue-500 text-sm">欢迎回来，管理员</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="relative group">
             <button 
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? '刷新中...' : '刷新'}
             </button>
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
               刷新页面数据
             </div>
           </div>
@@ -197,18 +197,18 @@ export default function AdminDashboard() {
             <button 
               onClick={handleExport}
               disabled={exporting}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
               {exporting ? '导出中...' : '导出'}
             </button>
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
               导出数据为CSV文件
             </div>
           </div>
           <Dialog open={isGuideOpen} onOpenChange={setIsGuideOpen}>
             <DialogTrigger asChild>
-              <button className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
                 <HelpCircle className="w-4 h-4" />
                 使用指南
               </button>
@@ -234,15 +234,15 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
+            <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
                 <div className="text-sm font-medium text-gray-500">{stat.title}</div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stat.iconColor}`}>
-                  <Icon className="w-4 h-4" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${stat.iconColor}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
               </div>
               <div className="text-2xl font-semibold text-blue-600">
@@ -254,48 +254,48 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-blue-600">快速操作</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => router.push('/admin/blog')}
-              className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                <BookOpen className="w-5 h-5 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+                <BookOpen className="w-6 h-6 text-blue-600" />
               </div>
               <span className="text-sm text-gray-700">管理 Blog</span>
             </button>
             <button
               onClick={() => router.push('/admin/projects')}
-              className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                <FolderKanban className="w-5 h-5 text-green-600" />
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+                <FolderKanban className="w-6 h-6 text-green-600" />
               </div>
               <span className="text-sm text-gray-700">管理项目</span>
             </button>
             <button
               onClick={() => router.push('/admin/contact')}
-              className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                <MessageSquare className="w-5 h-5 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+                <MessageSquare className="w-6 h-6 text-purple-600" />
               </div>
               <span className="text-sm text-gray-700">联系管理</span>
             </button>
             <button
               onClick={() => router.push('/admin/settings')}
-              className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
-                <HelpCircle className="w-5 h-5 text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-3">
+                <HelpCircle className="w-6 h-6 text-orange-600" />
               </div>
               <span className="text-sm text-gray-700">系统设置</span>
             </button>
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
 
         {/* Recent Activity */}
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-blue-600">最近活动</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
