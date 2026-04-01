@@ -12,6 +12,8 @@ export default function AdminDashboard() {
   const { blog, projects, contact, fetchData } = useContentStore();
   const [messagesCount, setMessagesCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     // 检查是否有访问权限
@@ -40,13 +42,87 @@ export default function AdminDashboard() {
     fetchMessages();
   }, [fetchData, router]);
 
-  const handleRefresh = () => {
-    fetchData();
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchData();
+      // 重新获取消息数
+      const res = await fetch('/api/messages');
+      if (res.ok) {
+        const data = await res.json();
+        setMessagesCount(data.length);
+      }
+    } catch (error) {
+      console.error('Refresh failed:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  const handleExport = () => {
-    // 简单的导出功能实现
-    alert('导出功能开发中');
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      // 获取所有数据
+      const [siteDataRes, messagesRes] = await Promise.all([
+        fetch('/api/site-data'),
+        fetch('/api/messages')
+      ]);
+
+      if (siteDataRes.ok && messagesRes.ok) {
+        const siteData = await siteDataRes.json();
+        const messages = await messagesRes.json();
+
+        // 准备CSV数据
+        let csvContent = '数据类型,标题,内容\n';
+
+        // 添加站点数据
+        if (siteData.data) {
+          csvContent += `站点设置,网站标题,${siteData.data.global?.siteTitle || ''}\n`;
+          csvContent += `站点设置,描述,${siteData.data.global?.description || ''}\n`;
+          csvContent += `个人信息,姓名,${siteData.data.profile?.basicInfo?.name || ''}\n`;
+          csvContent += `个人信息,角色,${siteData.data.profile?.role || ''}\n`;
+        }
+
+        // 添加项目数据
+        if (siteData.data?.projects) {
+          siteData.data.projects.forEach((project: any) => {
+            csvContent += `项目,${project.name},${project.description}\n`;
+          });
+        }
+
+        // 添加文章数据
+        if (siteData.data?.blog?.articles) {
+          siteData.data.blog.articles.forEach((article: any) => {
+            csvContent += `文章,${article.title},${article.summary}\n`;
+          });
+        }
+
+        // 添加消息数据
+        if (messages.length > 0) {
+          messages.forEach((message: any) => {
+            csvContent += `消息,${message.subject},${message.message.substring(0, 100)}...\n`;
+          });
+        }
+
+        // 创建下载链接
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `site-data-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('导出失败，请重试');
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (isLoading) {
@@ -100,17 +176,18 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">仪表盘</h1>
-          <p className="text-gray-600 text-sm mt-1">欢迎回来，管理员</p>
+          <h1 className="text-2xl font-bold text-blue-600">仪表盘</h1>
+          <p className="text-blue-500 text-sm mt-1">欢迎回来，管理员</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative group">
             <button 
               onClick={handleRefresh}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
             >
-              <RefreshCw className="w-4 h-4" />
-              刷新
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? '刷新中...' : '刷新'}
             </button>
             <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
               刷新页面数据
@@ -119,10 +196,11 @@ export default function AdminDashboard() {
           <div className="relative group">
             <button 
               onClick={handleExport}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              disabled={exporting}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
-              导出
+              {exporting ? '导出中...' : '导出'}
             </button>
             <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-md p-2 text-xs text-gray-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
               导出数据为CSV文件
@@ -167,7 +245,7 @@ export default function AdminDashboard() {
                   <Icon className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">
+              <div className="text-2xl font-semibold text-blue-600">
                 {typeof stat.value === 'number' ? stat.value : stat.value}
               </div>
             </div>
@@ -179,7 +257,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">快速操作</h3>
+            <h3 className="text-lg font-semibold text-blue-600">快速操作</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
             </button>
@@ -227,7 +305,7 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">最近活动</h3>
+            <h3 className="text-lg font-semibold text-blue-600">最近活动</h3>
             <button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
               查看全部
             </button>
