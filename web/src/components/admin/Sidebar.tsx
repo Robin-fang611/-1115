@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Home, User, FolderKanban, BookOpen, Settings, LogOut, MessageSquare, PenTool } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Home, User, FolderKanban, BookOpen, Settings, LogOut, MessageSquare, ChevronRight, Bell } from 'lucide-react';
 import clsx from 'clsx';
 
 const menuItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
+  { name: '仪表盘', icon: LayoutDashboard, href: '/admin/dashboard' },
   { name: '首页管理', icon: Home, href: '/admin/home' },
   { name: '关于我', icon: User, href: '/admin/about' },
   { name: '项目管理', icon: FolderKanban, href: '/admin/projects' },
@@ -16,7 +16,6 @@ const menuItems = [
 ];
 
 export function Sidebar() {
-  const router = useRouter();
   const pathname = usePathname();
 
   const handleLogout = async () => {
@@ -30,15 +29,30 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white text-gray-800">
-      <div className="flex h-16 items-center justify-center border-b px-6">
-        <div className="text-center">
-          <PenTool className="w-8 h-8 text-pink-600 mx-auto mb-1" />
-          <span className="text-lg font-bold text-pink-600 block" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-            Robin's Admin
-          </span>
+    <div className="flex h-screen w-64 flex-col bg-white border-r border-gray-200 shadow-sm">
+      {/* Logo and User Info */}
+      <div className="p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-semibold">R</span>
+            </div>
+            <span className="text-lg font-semibold text-gray-800">Robin's Admin</span>
+          </div>
+          <Bell className="w-5 h-5 text-gray-400 cursor-pointer hover:text-blue-500 transition-colors" />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <User className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-sm font-medium text-gray-800">管理员</div>
+            <div className="text-xs text-gray-500">admin</div>
+          </div>
         </div>
       </div>
+
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-3">
           {menuItems.map((item) => {
@@ -48,36 +62,31 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={clsx(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all border-2',
+                    'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                     isActive
-                      ? 'bg-pink-500 text-white border-pink-500 shadow-md'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-pink-400 hover:bg-pink-50'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-600 hover:bg-gray-50'
                   )}
-                  style={{ fontFamily: 'Comic Sans MS, cursive' }}
                 >
-                  <item.icon className="h-5 w-5" />
-                  {item.name}
+                  <div className="flex items-center gap-3">
+                    <item.icon className="w-5 h-5" />
+                    {item.name}
+                  </div>
+                  {isActive && <ChevronRight className="w-4 h-4" />}
                 </Link>
               </li>
             );
           })}
         </ul>
       </nav>
-      <div className="border-t p-4 space-y-2">
-        <Link
-          href="/"
-          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-pink-400 hover:bg-pink-50 transition-all"
-          style={{ fontFamily: 'Comic Sans MS, cursive' }}
-        >
-          <LogOut className="h-4 w-4" />
-          返回前台
-        </Link>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-gray-200">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 transition-all"
-          style={{ fontFamily: 'Comic Sans MS, cursive' }}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="w-5 h-5" />
           退出登录
         </button>
       </div>

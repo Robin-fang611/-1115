@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Lock } from 'lucide-react';
+import { Lock, Shield, CheckCircle2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const searchParams = useSearchParams();
@@ -44,36 +44,40 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-2xl border-2 border-dashed border-gray-400">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-pink-600" />
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            后台管理登录
-          </h1>
-          <p className="text-gray-600">请输入管理员密码</p>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-2">后台管理登录</h1>
+          <p className="text-gray-500 text-sm">请输入管理员密码</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               管理员密码
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-pink-500 transition-all"
-              placeholder="请输入密码"
-              autoFocus
-              disabled={loading}
-            />
+            <div className="relative">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="请输入密码"
+                autoFocus
+                disabled={loading}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <Lock className="w-4 h-4 text-gray-400" />
+              </div>
+            </div>
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              <CheckCircle2 className="w-4 h-4" />
               {error}
             </div>
           )}
@@ -81,7 +85,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+            className="w-full py-2.5 px-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-all disabled:opacity-50"
           >
             {loading ? '登录中...' : '登录'}
           </button>
@@ -90,10 +94,14 @@ export default function AdminLoginPage() {
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
           <a
             href="/"
-            className="text-gray-600 hover:text-pink-600 transition-colors text-sm"
+            className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
           >
             ← 返回首页
           </a>
+        </div>
+
+        <div className="mt-6 text-center text-xs text-gray-400">
+          <p>© 2026 Robin's Admin. 版权所有</p>
         </div>
       </div>
     </div>
