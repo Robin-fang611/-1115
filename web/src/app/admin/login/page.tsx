@@ -54,13 +54,13 @@ export default function AdminLoginPage() {
           <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <Shield className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">后台管理登录</h1>
-          <p className="text-gray-600 text-sm">请输入管理员密码</p>
+          <h1 className="text-2xl font-bold text-blue-600 mb-2">后台管理登录</h1>
+          <p className="text-blue-500 text-sm">请输入管理员密码</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-blue-600 mb-1">
               管理员密码
             </label>
             <div className="relative">
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
                 disabled={loading}
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <Lock className="w-4 h-4 text-gray-400" />
+                <Lock className="w-4 h-4 text-blue-500" />
               </div>
             </div>
           </div>
@@ -98,13 +98,13 @@ export default function AdminLoginPage() {
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
           <a
             href="/"
-            className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
+            className="text-blue-600 hover:text-blue-700 transition-colors text-sm"
           >
             ← 返回首页
           </a>
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-400">
+        <div className="mt-6 text-center text-xs text-blue-500">
           <p>© 2026 Robin's Admin. 版权所有</p>
         </div>
       </div>
